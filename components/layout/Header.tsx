@@ -2,14 +2,15 @@
 
 export function Header() {
   return (
-    <header className="bg-primary text-primary-foreground shadow-md">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-fuchsia-100 shadow-sm">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-14 sm:h-16">
+          {/* Logo & Title */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-gradient-to-br from-fuchsia-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-fuchsia-500/25 transform hover:scale-105 transition-transform">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
+                className="h-5 w-5 sm:h-6 sm:w-6 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -23,15 +24,27 @@ export function Header() {
               </svg>
             </div>
             <div>
-              <h1 className="text-xl font-bold">Calculadora de Ganancias</h1>
-              <p className="text-sm text-primary-foreground/80">Sistema POS Multi-Nicho</p>
+              <h1 className="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                Calculadora de Ganancias
+              </h1>
+              <p className="text-[10px] sm:text-xs text-gray-500 hidden xs:block">
+                Sistema POS Multi-Nicho
+              </p>
             </div>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-sm">
-            <span className="px-2 py-1 bg-white/20 rounded text-xs">
-              v1.0
-            </span>
+          {/* Right Section */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Status Badge */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-fuchsia-50 rounded-full">
+              <span className="w-1.5 h-1.5 bg-fuchsia-500 rounded-full animate-pulse"></span>
+              <span className="text-xs font-medium text-fuchsia-700">En vivo</span>
+            </div>
+
+            {/* Version Badge */}
+            <div className="px-2 py-1 bg-gray-100 rounded-lg">
+              <span className="text-[10px] sm:text-xs font-medium text-gray-600">v1.0</span>
+            </div>
           </div>
         </div>
       </div>
