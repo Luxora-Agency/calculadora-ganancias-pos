@@ -19,6 +19,7 @@ interface TeamConfigurationProps {
 
 interface TeamLevelInputProps {
   label: string;
+  comisionPct: string;
   icon: React.ReactNode;
   cantidad: number;
   ventas: number;
@@ -31,6 +32,7 @@ interface TeamLevelInputProps {
 
 function TeamLevelInput({
   label,
+  comisionPct,
   icon,
   cantidad,
   ventas,
@@ -62,7 +64,12 @@ function TeamLevelInput({
           <div className={`w-8 h-8 rounded-lg ${colorClass.replace('border-', 'bg-').replace('-200', '-100')} flex items-center justify-center`}>
             {icon}
           </div>
-          <span className="font-semibold text-gray-800">{label}</span>
+          <div>
+            <span className="font-semibold text-gray-800">{label}</span>
+            <span className="ml-2 text-xs font-medium text-fuchsia-600 bg-fuchsia-100 px-1.5 py-0.5 rounded">
+              {comisionPct}
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-full shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -170,6 +177,22 @@ export function TeamConfiguration({
     (camposVisibles.juniors ? config.juniors * config.ventasJuniors : 0) +
     (camposVisibles.base ? config.base * config.ventasBase : 0);
 
+  // Determinar los porcentajes de comisión según el tipo de vendedor
+  const getComisionPorcentajes = () => {
+    switch (vendorType) {
+      case 'lider':
+        return { seniors: '15%', juniors: '10%', base: '5%' };
+      case 'senior':
+        return { seniors: '0%', juniors: '15%', base: '10%' };
+      case 'junior':
+        return { seniors: '0%', juniors: '0%', base: '15%' };
+      default:
+        return { seniors: '0%', juniors: '0%', base: '0%' };
+    }
+  };
+
+  const comisiones = getComisionPorcentajes();
+
   return (
     <Card className="overflow-hidden border-fuchsia-100/50 shadow-sm">
       <CardHeader className="bg-gradient-to-r from-gray-800 to-gray-900 text-white pb-4">
@@ -197,6 +220,7 @@ export function TeamConfiguration({
         {camposVisibles.seniors && (
           <TeamLevelInput
             label="Seniors"
+            comisionPct={comisiones.seniors}
             icon={
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-fuchsia-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
@@ -215,6 +239,7 @@ export function TeamConfiguration({
         {camposVisibles.juniors && (
           <TeamLevelInput
             label="Juniors"
+            comisionPct={comisiones.juniors}
             icon={
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -233,6 +258,7 @@ export function TeamConfiguration({
         {camposVisibles.base && (
           <TeamLevelInput
             label="Base"
+            comisionPct={comisiones.base}
             icon={
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />

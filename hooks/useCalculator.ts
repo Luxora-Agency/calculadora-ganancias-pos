@@ -27,22 +27,19 @@ export function useCalculator() {
 
   const setTipoVendedor = useCallback((tipo: VendorType | null) => {
     setConfig(prev => {
-      // Resetear equipo según el nuevo tipo de vendedor
-      const limites = tipo ? LIMITES_EQUIPO[tipo] : LIMITES_EQUIPO.base;
-
-      const nuevoEquipo: TeamConfig = {
-        seniors: Math.min(prev.equipo.seniors, limites.seniors),
-        ventasSeniors: prev.equipo.ventasSeniors,
-        juniors: Math.min(prev.equipo.juniors, limites.juniors),
-        ventasJuniors: prev.equipo.ventasJuniors,
-        base: Math.min(prev.equipo.base, limites.base),
-        ventasBase: prev.equipo.ventasBase
-      };
+      // Si cambia el tipo de vendedor, resetear el equipo completamente
+      // para evitar datos inconsistentes
+      if (prev.tipoVendedor !== tipo) {
+        return {
+          ...prev,
+          tipoVendedor: tipo,
+          equipo: { ...initialTeamConfig }
+        };
+      }
 
       return {
         ...prev,
-        tipoVendedor: tipo,
-        equipo: nuevoEquipo
+        tipoVendedor: tipo
       };
     });
   }, []);

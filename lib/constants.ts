@@ -38,28 +38,28 @@ export const VENDEDORES: Record<VendorType, VendorInfo> = {
   lider: {
     id: 'lider',
     nombre: 'Líder',
-    descripcion: 'Máximo nivel. Puedes reclutar Seniors y gestionar todo el equipo multinivel.',
-    puedeReclutar: 'Seniors',
-    maxEquipo: 'Hasta 10 Seniors + 20 Juniors + 20 Base = 50 vendedores'
+    descripcion: 'Máximo nivel. Ganas 70% de tus ventas + 15% de Seniors + 10% de Juniors + 5% de Base.',
+    puedeReclutar: 'Seniors, Juniors, Base',
+    maxEquipo: 'Hasta 10 Seniors + 20 Juniors + 20 Base'
   },
   senior: {
     id: 'senior',
     nombre: 'Senior',
-    descripcion: 'Puedes reclutar Juniors y recibir comisiones de tu equipo.',
-    puedeReclutar: 'Juniors',
-    maxEquipo: 'Hasta 2 Juniors + 2 Base = 4 vendedores'
+    descripcion: 'Ganas 70% de tus ventas + 15% de Juniors + 10% de Base en tu red.',
+    puedeReclutar: 'Juniors, Base',
+    maxEquipo: 'Hasta 2 Juniors + 2 Base'
   },
   junior: {
     id: 'junior',
     nombre: 'Junior',
-    descripcion: 'Puedes reclutar vendedores Base y crecer tu equipo.',
+    descripcion: 'Ganas 70% de tus ventas + 15% de los Base que reclutes.',
     puedeReclutar: 'Base',
     maxEquipo: 'Hasta 1 vendedor Base'
   },
   base: {
     id: 'base',
     nombre: 'Base',
-    descripcion: 'Nivel inicial. Ganas comisiones por tus ventas directas.',
+    descripcion: 'Nivel inicial. Ganas el 70% de cada venta que realices.',
     puedeReclutar: 'No recluta',
     maxEquipo: 'Sin equipo'
   }
