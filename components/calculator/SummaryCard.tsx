@@ -90,11 +90,11 @@ export function SummaryCard({
           {/* Recurring Income */}
           <div className="p-4 bg-gradient-to-br from-fuchsia-50 to-pink-50 rounded-xl border border-fuchsia-200">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-fuchsia-700 uppercase tracking-wide">Ingreso Pasivo</span>
-              <span className="px-2 py-0.5 bg-fuchsia-200 text-fuchsia-700 text-[10px] font-bold rounded-full">3% mensual</span>
+              <span className="text-xs font-semibold text-fuchsia-700 uppercase tracking-wide">Ingreso Recurrente</span>
+              <span className="px-2 py-0.5 bg-fuchsia-200 text-fuchsia-700 text-[10px] font-bold rounded-full">Mes 3+</span>
             </div>
             <p className="text-xl sm:text-2xl font-bold text-fuchsia-600 mb-1">{formatCurrency(recurring)}</p>
-            <p className="text-xs text-fuchsia-500">cada mes de forma recurrente</p>
+            <p className="text-xs text-fuchsia-500">ingreso pasivo mensual</p>
             <div className="mt-3 flex items-center gap-2">
               <div className="flex-1 h-2 bg-fuchsia-200 rounded-full overflow-hidden">
                 <div className="h-full bg-gradient-to-r from-fuchsia-500 to-pink-500 rounded-full animate-pulse" style={{ width: '60%' }} />
@@ -137,10 +137,16 @@ export function SummaryCard({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <p className="text-xs text-gray-600 leading-relaxed">
-              <span className="font-semibold text-gray-700">Importante:</span> El ingreso del Mes 1 (100%) y Mes 2 (30%) son pagos únicos por cada venta.
-              El 3% es recurrente y crece conforme mantienes clientes activos.
-            </p>
+            <div className="text-xs text-gray-600 leading-relaxed">
+              <p className="mb-1">
+                <span className="font-semibold text-gray-700">Estructura de comisiones:</span>
+              </p>
+              <ul className="list-disc list-inside space-y-0.5 text-gray-500">
+                <li><span className="text-fuchsia-600 font-medium">Mes 1:</span> 100% del plan (70% tuyo, 15-10-5% uplines)</li>
+                <li><span className="text-fuchsia-600 font-medium">Mes 2:</span> 30% adicional por cliente activo</li>
+                <li><span className="text-fuchsia-600 font-medium">Mes 3+:</span> 3% recurrente mientras el cliente esté activo</li>
+              </ul>
+            </div>
           </div>
         </div>
       </CardContent>

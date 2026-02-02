@@ -15,91 +15,134 @@ import {
 } from './constants';
 
 /**
- * Calcula las ventas totales del equipo según el tipo de vendedor
+ * Estructura para rastrear ventas por nivel
  */
-function calcularVentasEquipo(config: CalculatorConfig): number {
-  if (!config.tipoVendedor || config.tipoVendedor === 'base') {
-    return 0;
-  }
-
-  const { equipo } = config;
-  let totalVentasEquipo = 0;
-
-  // Solo el líder tiene seniors
-  if (config.tipoVendedor === 'lider') {
-    totalVentasEquipo += equipo.seniors * equipo.ventasSeniors;
-  }
-
-  // Líder y Senior tienen juniors
-  if (config.tipoVendedor === 'lider' || config.tipoVendedor === 'senior') {
-    totalVentasEquipo += equipo.juniors * equipo.ventasJuniors;
-  }
-
-  // Líder, Senior y Junior tienen base (ya sabemos que no es 'base' por la condición inicial)
-  totalVentasEquipo += equipo.base * equipo.ventasBase;
-
-  return totalVentasEquipo;
+interface VentasPorNivel {
+  propias: number;
+  nivel1: number; // Equipo directo (ej: Seniors para Líder)
+  nivel2: number; // Segundo nivel (ej: Juniors para Líder)
+  nivel3: number; // Tercer nivel (ej: Base para Líder)
 }
 
 /**
- * Calcula el ingreso del Mes 1 (100%) por ventas nuevas
+ * Obtiene las ventas desglosadas por nivel según el tipo de vendedor
  */
-function calcularIngresoM1(ventasNuevas: number, config: CalculatorConfig): number {
-  if (!config.tipoVendedor) return 0;
+function obtenerVentasPorNivel(config: CalculatorConfig): VentasPorNivel {
+  const resultado: VentasPorNivel = {
+    propias: config.ventasPropias,
+    nivel1: 0,
+    nivel2: 0,
+    nivel3: 0
+  };
 
-  const precioBase = PLANES[config.plan].precio;
+  if (!config.tipoVendedor || config.tipoVendedor === 'base') {
+    return resultado;
+  }
+
+  const { equipo } = config;
+
+  if (config.tipoVendedor === 'lider') {
+    // Líder: Seniors (nivel 1), Juniors (nivel 2), Base (nivel 3)
+    resultado.nivel1 = equipo.seniors * equipo.ventasSeniors;
+    resultado.nivel2 = equipo.juniors * equipo.ventasJuniors;
+    resultado.nivel3 = equipo.base * equipo.ventasBase;
+  } else if (config.tipoVendedor === 'senior') {
+    // Senior: Juniors (nivel 1), Base (nivel 2)
+    resultado.nivel1 = equipo.juniors * equipo.ventasJuniors;
+    resultado.nivel2 = equipo.base * equipo.ventasBase;
+  } else if (config.tipoVendedor === 'junior') {
+    // Junior: Base (nivel 1)
+    resultado.nivel1 = equipo.base * equipo.ventasBase;
+  }
+
+  return resultado;
+}
+
+/**
+ * Calcula el ingreso total aplicando una tasa de comisión a las ventas por nivel
+ */
+function calcularIngresoPorNivel(
+  ventas: VentasPorNivel,
+  precioBase: number,
+  tasaComision: number
+): number {
   let ingresoTotal = 0;
 
-  // Ventas propias
-  const ventasPropias = config.ventasPropias;
-  ingresoTotal += ventasPropias * precioBase * COMISION_MES_1 * DIST_VENDEDOR;
+  // Ventas propias: 70%
+  ingresoTotal += ventas.propias * precioBase * tasaComision * DIST_VENDEDOR;
 
-  // Ventas del equipo (según el nivel jerárquico)
-  if (config.tipoVendedor === 'lider') {
-    const ventasSeniors = config.equipo.seniors * config.equipo.ventasSeniors;
-    const ventasJuniors = config.equipo.juniors * config.equipo.ventasJuniors;
-    const ventasBase = config.equipo.base * config.equipo.ventasBase;
+  // Nivel 1 (equipo directo): 15%
+  ingresoTotal += ventas.nivel1 * precioBase * tasaComision * DIST_UPLINE_1;
 
-    ingresoTotal += ventasSeniors * precioBase * COMISION_MES_1 * DIST_UPLINE_1;
-    ingresoTotal += ventasJuniors * precioBase * COMISION_MES_1 * DIST_UPLINE_2;
-    ingresoTotal += ventasBase * precioBase * COMISION_MES_1 * DIST_LIDER;
-  } else if (config.tipoVendedor === 'senior') {
-    const ventasJuniors = config.equipo.juniors * config.equipo.ventasJuniors;
-    const ventasBase = config.equipo.base * config.equipo.ventasBase;
+  // Nivel 2: 10%
+  ingresoTotal += ventas.nivel2 * precioBase * tasaComision * DIST_UPLINE_2;
 
-    ingresoTotal += ventasJuniors * precioBase * COMISION_MES_1 * DIST_UPLINE_1;
-    ingresoTotal += ventasBase * precioBase * COMISION_MES_1 * DIST_UPLINE_2;
-  } else if (config.tipoVendedor === 'junior') {
-    const ventasBase = config.equipo.base * config.equipo.ventasBase;
-    ingresoTotal += ventasBase * precioBase * COMISION_MES_1 * DIST_UPLINE_1;
-  }
+  // Nivel 3: 5%
+  ingresoTotal += ventas.nivel3 * precioBase * tasaComision * DIST_LIDER;
 
   return ingresoTotal;
 }
 
 /**
- * Calcula el ingreso del Mes 2 (30%) por clientes del mes anterior
+ * Calcula el ingreso del Mes 1 (100%) por ventas nuevas
  */
-function calcularIngresoM2(clientesMes2: number, config: CalculatorConfig): number {
+function calcularIngresoM1(config: CalculatorConfig): number {
+  if (!config.tipoVendedor) return 0;
+
+  const precioBase = PLANES[config.plan].precio;
+  const ventas = obtenerVentasPorNivel(config);
+
+  return calcularIngresoPorNivel(ventas, precioBase, COMISION_MES_1);
+}
+
+/**
+ * Calcula el ingreso del Mes 2 (30%) por clientes del mes anterior
+ * Mantiene la misma distribución multinivel que M1
+ */
+function calcularIngresoM2(clientesPorNivel: VentasPorNivel, config: CalculatorConfig): number {
   if (!config.tipoVendedor) return 0;
 
   const precioBase = PLANES[config.plan].precio;
 
-  // Simplificación: asumimos distribución similar al M1 pero con 30%
-  // En la práctica, los clientesMes2 representan todas las ventas del mes anterior
-  return clientesMes2 * precioBase * COMISION_MES_2 * DIST_VENDEDOR;
+  return calcularIngresoPorNivel(clientesPorNivel, precioBase, COMISION_MES_2);
 }
 
 /**
  * Calcula el ingreso Mes 3+ (3% recurrente)
+ * Mantiene la misma distribución multinivel
  */
-function calcularIngresoM3(clientesMes3Plus: number, config: CalculatorConfig): number {
+function calcularIngresoM3(clientesPorNivel: VentasPorNivel, config: CalculatorConfig): number {
   if (!config.tipoVendedor) return 0;
 
   const precioBase = PLANES[config.plan].precio;
 
-  // Ingreso recurrente del 3% sobre clientes activos
-  return clientesMes3Plus * precioBase * COMISION_MES_3_PLUS * DIST_VENDEDOR;
+  return calcularIngresoPorNivel(clientesPorNivel, precioBase, COMISION_MES_3_PLUS);
+}
+
+/**
+ * Suma dos estructuras de VentasPorNivel
+ */
+function sumarVentas(a: VentasPorNivel, b: VentasPorNivel): VentasPorNivel {
+  return {
+    propias: a.propias + b.propias,
+    nivel1: a.nivel1 + b.nivel1,
+    nivel2: a.nivel2 + b.nivel2,
+    nivel3: a.nivel3 + b.nivel3
+  };
+}
+
+/**
+ * Obtiene el total de ventas de una estructura VentasPorNivel
+ */
+function totalVentas(ventas: VentasPorNivel): number {
+  return ventas.propias + ventas.nivel1 + ventas.nivel2 + ventas.nivel3;
+}
+
+/**
+ * Crea una estructura de ventas vacía
+ */
+function ventasVacias(): VentasPorNivel {
+  return { propias: 0, nivel1: 0, nivel2: 0, nivel3: 0 };
 }
 
 /**
@@ -120,28 +163,28 @@ export function simular(config: CalculatorConfig): SimulationResults {
   }
 
   const resultados: MonthResult[] = [];
-  let clientesMes2 = 0;
-  let clientesMes3Plus = 0;
+  let clientesMes2: VentasPorNivel = ventasVacias();
+  let clientesMes3Plus: VentasPorNivel = ventasVacias();
   let acumulado = 0;
 
-  const ventasEquipoMensuales = calcularVentasEquipo(config);
-  const ventasTotalesMensuales = config.ventasPropias + ventasEquipoMensuales;
+  // Ventas mensuales por nivel (constantes cada mes)
+  const ventasMensuales = obtenerVentasPorNivel(config);
+  const ventasTotalesMensuales = totalVentas(ventasMensuales);
 
   for (let mes = 1; mes <= config.meses; mes++) {
-    const ventasNuevas = ventasTotalesMensuales;
-
-    const ingresoM1 = calcularIngresoM1(ventasNuevas, config);
+    // Calcular ingresos con la distribución correcta por nivel
+    const ingresoM1 = calcularIngresoM1(config);
     const ingresoM2 = calcularIngresoM2(clientesMes2, config);
     const ingresoM3 = calcularIngresoM3(clientesMes3Plus, config);
 
     const totalMes = ingresoM1 + ingresoM2 + ingresoM3;
     acumulado += totalMes;
 
-    const clientesActivos = ventasNuevas + clientesMes2 + clientesMes3Plus;
+    const clientesActivos = ventasTotalesMensuales + totalVentas(clientesMes2) + totalVentas(clientesMes3Plus);
 
     resultados.push({
       mes,
-      ventasNuevas,
+      ventasNuevas: ventasTotalesMensuales,
       ingresoM1,
       ingresoM2,
       ingresoM3,
@@ -150,9 +193,9 @@ export function simular(config: CalculatorConfig): SimulationResults {
       clientesActivos
     });
 
-    // Actualizar clientes para el siguiente mes
-    clientesMes3Plus += clientesMes2;
-    clientesMes2 = ventasNuevas;
+    // Actualizar clientes para el siguiente mes (mantener estructura por nivel)
+    clientesMes3Plus = sumarVentas(clientesMes3Plus, clientesMes2);
+    clientesMes2 = { ...ventasMensuales };
   }
 
   const ultimoMes = resultados[resultados.length - 1];
