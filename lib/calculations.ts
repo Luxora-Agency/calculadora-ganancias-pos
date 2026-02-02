@@ -60,6 +60,7 @@ function obtenerVentasPorNivel(config: CalculatorConfig): VentasPorNivel {
 
 /**
  * Calcula el ingreso total aplicando una tasa de comisión a las ventas por nivel
+ * Redondea al entero más cercano para evitar errores de precisión de punto flotante
  */
 function calcularIngresoPorNivel(
   ventas: VentasPorNivel,
@@ -80,7 +81,8 @@ function calcularIngresoPorNivel(
   // Nivel 3: 5%
   ingresoTotal += ventas.nivel3 * precioBase * tasaComision * DIST_LIDER;
 
-  return ingresoTotal;
+  // Redondear para evitar errores de punto flotante (ej: 125999.99999 → 126000)
+  return Math.round(ingresoTotal);
 }
 
 /**
