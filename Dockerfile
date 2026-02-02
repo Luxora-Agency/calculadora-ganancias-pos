@@ -12,6 +12,9 @@ RUN npm ci
 # Copy source code
 COPY . .
 
+# Ensure public directory exists (required for Next.js standalone output)
+RUN mkdir -p public
+
 # Build the application
 RUN npm run build
 
@@ -27,8 +30,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Copy built application
+# Copy public folder (create if doesn't exist in builder)
 COPY --from=builder /app/public ./public
+
+# Copy built application
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
